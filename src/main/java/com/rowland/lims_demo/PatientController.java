@@ -24,18 +24,11 @@ public class PatientController {
         return patientRepository.save(patient);
     }
 
-}
-
-@ResponseStatus(value = HttpStatus.NOT_FOUND)
-class PatientNotFoundException extends RuntimeException {
-    public PatientNotFoundException() {
-        super("Patient not found");
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    static private class PatientNotFoundException extends RuntimeException {
+        public PatientNotFoundException() {
+            super("Patient not found");
+        }
     }
-}
 
-//@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-//class PatientNotFoundException extends RuntimeException {
-//    public PatientNotFoundException() {
-//        super("Patient not found");
-//    }
-//}
+}
