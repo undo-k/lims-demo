@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +21,12 @@ class LimsDemoApplicationTests {
 
 	@Autowired
 	private PatientRepository patientRepository;
+
+	@Autowired
+	private  LabOrderRepository labOrderRepository;
+
+
+
 
 	@Test
 	public void insertPatient_thenGetPatientById() throws Exception {
@@ -42,6 +48,34 @@ class LimsDemoApplicationTests {
 		Optional<Patient> found = patientRepository.findById(john.getId());
 		assertThat(found.isPresent()).isEqualTo(true);
 		assertThat(found.get().getAddress()).isEqualTo(addy);
+	}
+
+
+	@Test
+	public void bottomUpCreation() throws Exception {
+		Patient patient = new Patient("John", "Smith", "1963-11-22", "M");
+		entityManager.persistAndFlush(patient);
+
+		Sample sample = new Sample();
+		entityManager.persistAndFlush(sample);
+
+		LabTest test = new LabTest(LabTest.TestType.FUN, sample);
+		entityManager.persistAndFlush(test);
+
+		Physician physician = new Physician();
+		entityManager.persistAndFlush(physician);
+
+		Set<LabTest> labTests = new HashSet<>(List.of(test));
+		LabOrder order = new LabOrder(patient, physician, labTests);
+		entityManager.persistAndFlush(order);
+
+
+		Patient p = patientRepository.findById(patient.getId()).orElseThrow();
+		assertThat(Objects.equals(p.getLastName(), patient.getLastName())).isEqualTo(true);
+
+//		Optional<Patient> found = patientRepository.findById(john.getId());
+//		assertThat(found.isPresent()).isEqualTo(true);
+//		assertThat(found.get().getAddress()).isEqualTo(addy);
 	}
 
 

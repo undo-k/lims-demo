@@ -32,7 +32,7 @@ public class Patient {
 
 
     @OneToMany(mappedBy = "patient")
-    private Set<Order> orders;
+    private Set<LabOrder> orders;
 
 
 
