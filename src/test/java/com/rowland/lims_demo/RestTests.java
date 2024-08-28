@@ -42,9 +42,9 @@ public class RestTests {
 
 
 
-    String createPatientURI = "/api/patients/create";
-    String updatePatientURI = "/api/patients/update";
-    String getPatientURI = "/api/patients/";
+    String createPatientURI = "/api/patient/create";
+    String updatePatientURI = "/api/patient/update";
+    String getPatientURI = "/api/patient/";
     String createOrderUri = "/api/order/create";
     String updateOrderURI = "/api/order/update";
     String getOrderUri = "/api/order/";
