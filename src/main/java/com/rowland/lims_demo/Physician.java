@@ -12,4 +12,8 @@ public class Physician {
 
 
     protected Physician() {}
+
+    public Long getId() {
+        return id;
+    }
 }
