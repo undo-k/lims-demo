@@ -1,11 +1,18 @@
 package com.rowland.lims_demo;
 
-import jakarta.persistence.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 @Entity
 public class LabOrder {
@@ -58,10 +65,6 @@ public class LabOrder {
     public Set<LabTest> getTests() {
         return tests;
     }
-
-//    public void setTests(HashSet<Test> tests) {
-//        this.testTypes = (HashSet<TestType>) testTypes.stream().map(TestType::valueOf).collect(Collectors.toSet());
-//    }
 
     public void setTests(HashSet<LabTest> tests) {
         this.tests = tests;

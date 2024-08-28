@@ -1,8 +1,10 @@
 package com.rowland.lims_demo;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
-import java.util.Set;
 
 @Entity
 public class Physician {

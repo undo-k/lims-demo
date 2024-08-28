@@ -1,8 +1,7 @@
 package com.rowland.lims_demo;
 
 
-import jakarta.persistence.Entity;
-import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,18 +44,7 @@ public class LabOrderController {
         return new ResponseEntity<>(labOrderRepository.save(order), HttpStatus.CREATED);
     }
 
-//    @PutMapping("/update")
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    public ResponseEntity<Patient> update(@RequestBody Patient patient) {
-//        Patient existingPatient = patientRepository.findByFirstNameAndLastNameAndDateOfBirth(patient.getFirstName(), patient.getLastName(), patient.getDateOfBirth());
-//
-//        if (existingPatient != null) {
-//            existingPatient.setAddress(patient.getAddress());
-//            return new ResponseEntity<>(patientRepository.save(existingPatient), HttpStatus.ACCEPTED);
-//        } else {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
+
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     static private class OrderNotFoundException extends RuntimeException {

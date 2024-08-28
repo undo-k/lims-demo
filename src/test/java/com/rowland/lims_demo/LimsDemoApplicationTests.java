@@ -8,7 +8,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -73,9 +77,6 @@ class LimsDemoApplicationTests {
 		Patient p = patientRepository.findById(patient.getId()).orElseThrow();
 		assertThat(Objects.equals(p.getLastName(), patient.getLastName())).isEqualTo(true);
 
-//		Optional<Patient> found = patientRepository.findById(john.getId());
-//		assertThat(found.isPresent()).isEqualTo(true);
-//		assertThat(found.get().getAddress()).isEqualTo(addy);
 	}
 
 
