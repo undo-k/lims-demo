@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 
 @Entity
@@ -29,6 +30,9 @@ public class Patient {
     @Enumerated(EnumType.STRING)
     private Sex sex;
 
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Order> orders;
 
 
 

@@ -4,6 +4,7 @@ package com.rowland.lims_demo;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,11 +18,29 @@ public class PatientController {
         return patientRepository.findById(id).orElseThrow(PatientNotFoundException::new);
     }
 
-    @PostMapping
+    @PutMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
     public Patient create(@RequestBody Patient patient) {
+        Patient existingPatient = patientRepository.findByFirstNameAndLastNameAndDateOfBirth(patient.getFirstName(), patient.getLastName(), patient.getDateOfBirth());
 
-        return patientRepository.save(patient);
+        if (existingPatient != null) {
+            return existingPatient;
+        } else {
+            return patientRepository.save(patient);
+        }
+    }
+
+    @PutMapping("/update")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<Patient> update(@RequestBody Patient patient) {
+        Patient existingPatient = patientRepository.findByFirstNameAndLastNameAndDateOfBirth(patient.getFirstName(), patient.getLastName(), patient.getDateOfBirth());
+
+        if (existingPatient != null) {
+            existingPatient.setAddress(patient.getAddress());
+            return new ResponseEntity<>(patientRepository.save(existingPatient), HttpStatus.ACCEPTED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
