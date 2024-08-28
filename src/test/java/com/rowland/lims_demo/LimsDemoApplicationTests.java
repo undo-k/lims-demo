@@ -69,7 +69,7 @@ class LimsDemoApplicationTests {
 		Physician physician = new Physician();
 		entityManager.persistAndFlush(physician);
 
-		Set<LabTest> labTests = new HashSet<>(List.of(test));
+		HashSet<LabTest> labTests = new HashSet<>(List.of(test));
 		LabOrder order = new LabOrder(patient, physician, labTests);
 		entityManager.persistAndFlush(order);
 

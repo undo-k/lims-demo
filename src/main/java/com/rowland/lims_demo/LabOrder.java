@@ -33,7 +33,7 @@ public class LabOrder {
     private Status status;
 
 
-    public LabOrder(Patient patient, Physician physician, Set<LabTest> tests){
+    public LabOrder(Patient patient, Physician physician, HashSet<LabTest> tests){
         this.patient = patient;
         this.physician = physician;
         this.tests = tests;

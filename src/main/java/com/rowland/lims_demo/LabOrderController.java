@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @RestController
@@ -44,7 +45,21 @@ public class LabOrderController {
         return new ResponseEntity<>(labOrderRepository.save(order), HttpStatus.CREATED);
     }
 
+    @PutMapping("/update")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public ResponseEntity<LabOrder> update(@RequestBody LabOrder order) {
+        LabOrder existingOrder = labOrderRepository.findById(order.getId()).orElseThrow(OrderNotFoundException::new);
 
+        if (existingOrder.getStatus() != order.getStatus()) {
+            existingOrder.setStatus(order.getStatus());
+        }
+
+        if (!existingOrder.getTests().equals(order.getTests())) {
+            existingOrder.setTests((HashSet<LabTest>) order.getTests());
+        }
+
+        return new ResponseEntity<>(labOrderRepository.save(existingOrder), HttpStatus.ACCEPTED);
+    }
 
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     static private class OrderNotFoundException extends RuntimeException {
