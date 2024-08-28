@@ -26,12 +26,16 @@ public class RestTests {
     private PatientRepository repo;
 
     @Test
-    public void postThenGetPatients() throws Exception {
+    public void PutThenGetPatient() throws Exception {
 
         Patient john = new Patient("John", "Smith", "1963-11-22", "M");
 
         String patientJson = String.format("{\"firstName\": \"%s\", \"lastName\": \"%s\", \"dateOfBirth\": \"%s\", \"sex\": \"%s\"}", john.getFirstName(), john.getLastName(), john.getDateOfBirth().toString(), john.getSex());
-        mvc.perform(MockMvcRequestBuilders.post("/api/patients").contentType(MediaType.APPLICATION_JSON).content(patientJson));
+        mvc.perform(MockMvcRequestBuilders.put("/api/patients/create").contentType(MediaType.APPLICATION_JSON).content(patientJson));
+        mvc.perform(MockMvcRequestBuilders.put("/api/patients/create").contentType(MediaType.APPLICATION_JSON).content(patientJson));
+        mvc.perform(MockMvcRequestBuilders.put("/api/patients/create").contentType(MediaType.APPLICATION_JSON).content(patientJson));
+        mvc.perform(MockMvcRequestBuilders.put("/api/patients/create").contentType(MediaType.APPLICATION_JSON).content(patientJson));
+        mvc.perform(MockMvcRequestBuilders.put("/api/patients/create").contentType(MediaType.APPLICATION_JSON).content(patientJson));
 
         mvc.perform(MockMvcRequestBuilders.get("/api/patients/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -40,5 +44,6 @@ public class RestTests {
                         .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("firstName").value(john.getFirstName()))
                 .andExpect(jsonPath("lastName").value(john.getLastName()));
+        mvc.perform(MockMvcRequestBuilders.get("/api/patients/2").contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 }
