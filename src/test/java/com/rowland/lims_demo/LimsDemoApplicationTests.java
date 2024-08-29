@@ -8,11 +8,11 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,11 +29,13 @@ class LimsDemoApplicationTests {
 	@Autowired
 	private  LabOrderRepository labOrderRepository;
 
+	@Autowired
+	private PhysicianRepository physicianRepository;
 
 
 
 	@Test
-	public void insertPatient_thenGetPatientById() throws Exception {
+	public void createPatientThenFindPatient() throws Exception {
 		Patient john = new Patient("John", "Smith", "1963-11-22", "M");
 		entityManager.persistAndFlush(john);
 
@@ -43,7 +45,7 @@ class LimsDemoApplicationTests {
 	}
 
 	@Test
-	public void setPatientAddress() throws Exception {
+	public void updatePatientAddress() throws Exception {
 		Patient john = new Patient("John", "Smith", "1963-11-22", "M");
 		String addy = "123 High Street Abyssal Woods, FL 335522";
 		john.setAddress(addy);
@@ -52,6 +54,18 @@ class LimsDemoApplicationTests {
 		Optional<Patient> found = patientRepository.findById(john.getId());
 		assertThat(found.isPresent()).isEqualTo(true);
 		assertThat(found.get().getAddress()).isEqualTo(addy);
+	}
+
+	@Test
+	public void createPhysicianThenFindPhysician() {
+		Physician p = new Physician("Doctor", "Doctor", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
+		entityManager.persistAndFlush(p);
+
+		Physician found = physicianRepository.findByFirstNameAndLastNameAndHospital("Doctor", "Doctor", "Hospital");
+
+		assertThat(found.getId()).isEqualTo(p.getId());
+		assertThat(found.getFirstName()).isEqualTo(p.getFirstName());
+		assertThat(found.getLastName()).isEqualTo(p.getLastName());
 	}
 
 
@@ -66,7 +80,7 @@ class LimsDemoApplicationTests {
 		LabTest test = new LabTest(LabTest.TestType.FUN, sample);
 		entityManager.persistAndFlush(test);
 
-		Physician physician = new Physician();
+		Physician physician = new Physician("Doctor", "Doctor", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
 		entityManager.persistAndFlush(physician);
 
 		HashSet<LabTest> labTests = new HashSet<>(List.of(test));
