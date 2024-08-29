@@ -12,4 +12,8 @@ public class Sample {
     private Long id;
 
     protected Sample(){}
+
+    public Long getId() {
+        return id;
+    }
 }

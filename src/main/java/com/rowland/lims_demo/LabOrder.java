@@ -1,5 +1,6 @@
 package com.rowland.lims_demo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,11 +11,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 
-@Entity
+@Entity @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LabOrder {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -26,17 +26,19 @@ public class LabOrder {
     @ManyToOne()
     private Physician physician;
 
-    @OneToMany
-    private Set<LabTest> tests;
+    @OneToMany(mappedBy = "order")
+    private List<LabTest> tests;
 
     @Enumerated(EnumType.STRING)
     private Status status;
 
 
-    public LabOrder(Patient patient, Physician physician, HashSet<LabTest> tests){
+    public LabOrder(Patient patient, Physician physician, List<LabTest> tests){
         this.patient = patient;
         this.physician = physician;
-        this.tests = tests;
+
+        setTests(tests);
+
         this.status = Status.IN_PROGRESS;
     }
 
@@ -62,12 +64,15 @@ public class LabOrder {
         this.physician = physician;
     }
 
-    public Set<LabTest> getTests() {
+    public List<LabTest> getTests() {
         return tests;
     }
 
-    public void setTests(HashSet<LabTest> tests) {
+    public void setTests(List<LabTest> tests) {
         this.tests = tests;
+        for(LabTest test : tests) {
+            test.setOrder(this);
+        }
     }
 
     public Status getStatus() {
@@ -77,6 +82,12 @@ public class LabOrder {
     public void setStatus(Status status) {
         this.status = status;
     }
+
+    public void setStatus(String status) {
+        this.status = Status.valueOf(status);
+    }
+
+
 
 
 

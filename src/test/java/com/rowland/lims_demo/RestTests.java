@@ -18,7 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -46,6 +46,7 @@ public class RestTests {
     final String PHYSICIAN_URI = "/api/physician/";
     final String CREATE = "/create";
     final String UPDATE = "/update";
+    final String LINK_SAMPLE = "/linksample";
             
 
     @Test
@@ -127,7 +128,7 @@ public class RestTests {
         Physician physician = new Physician("Doctor", "Doctor", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
         entityManager.persistAndFlush(physician);
 
-        HashSet<LabTest> labTests = new HashSet<>(List.of(test));
+        List<LabTest> labTests = List.of(test);
         LabOrder order = new LabOrder(patient, physician, labTests);
 
         String orderJson = objectMapper.writeValueAsString(order);
@@ -161,7 +162,7 @@ public class RestTests {
         Physician physician = new Physician("Doctor", "Doctor", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
         entityManager.persistAndFlush(physician);
 
-        HashSet<LabTest> labTests = new HashSet<>(List.of(test));
+        List<LabTest> labTests = List.of(test);
         LabOrder order = new LabOrder(patient, physician, labTests);
 
         String orderJson = objectMapper.writeValueAsString(order);
@@ -172,7 +173,16 @@ public class RestTests {
         returnedOrder.setStatus(LabOrder.Status.COMPLETE);
         orderJson = objectMapper.writeValueAsString(returnedOrder);
 
-         mvc.perform(MockMvcRequestBuilders.put(ORDER_URI + UPDATE).contentType(MediaType.APPLICATION_JSON).content(orderJson)).andReturn().getResponse().getContentAsString();
+        mvc.perform(MockMvcRequestBuilders.get(ORDER_URI + returnedOrder.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content()
+                        .contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("patient.id").value(patient.getId()))
+                .andExpect(jsonPath("patient.lastName").value(patient.getLastName()))
+                .andExpect(jsonPath("status").value("IN_PROGRESS"));
+
+         mvc.perform(MockMvcRequestBuilders.put(ORDER_URI + UPDATE).contentType(MediaType.APPLICATION_JSON).content(orderJson)).andExpect(MockMvcResultMatchers.status().isAccepted());
 
 
         mvc.perform(MockMvcRequestBuilders.get(ORDER_URI + returnedOrder.getId())
@@ -191,9 +201,12 @@ public class RestTests {
         Physician physician = new Physician("Doctor", "Doctor", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
         String physicianJson = objectMapper.writeValueAsString(physician);
 
-        mvc.perform(MockMvcRequestBuilders.put(PHYSICIAN_URI + CREATE).contentType(MediaType.APPLICATION_JSON).content(physicianJson)).andExpect(MockMvcResultMatchers.status().isCreated());
+        String returnedString = mvc.perform(MockMvcRequestBuilders.put(PHYSICIAN_URI + CREATE).contentType(MediaType.APPLICATION_JSON).content(physicianJson)).andExpect(MockMvcResultMatchers.status().isCreated()).andReturn().getResponse().getContentAsString();
+        physician = objectMapper.readValue(returnedString, Physician.class);
+        assert physician.getId() != null;
+
         mvc.perform(MockMvcRequestBuilders.put(PHYSICIAN_URI + CREATE).contentType(MediaType.APPLICATION_JSON).content(physicianJson)).andExpect(MockMvcResultMatchers.status().isOk());
-        mvc.perform(MockMvcRequestBuilders.get(PHYSICIAN_URI + "2").contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
+        mvc.perform(MockMvcRequestBuilders.get(PHYSICIAN_URI + physician.getId()).contentType(MediaType.APPLICATION_JSON)).andExpect(MockMvcResultMatchers.status().isOk());
 
     }
 
@@ -211,6 +224,34 @@ public class RestTests {
 
         mvc.perform(MockMvcRequestBuilders.put(PHYSICIAN_URI + UPDATE).contentType(MediaType.APPLICATION_JSON).content(physicianJson)).andExpect(MockMvcResultMatchers.status().isAccepted());
         mvc.perform(MockMvcRequestBuilders.put(PHYSICIAN_URI + UPDATE).contentType(MediaType.APPLICATION_JSON).content(physicianJson)).andExpect(MockMvcResultMatchers.status().isAccepted());
+    }
+
+    @Test @Transactional
+    public void LinkSampleToTest() throws Exception {
+        Patient patient = new Patient("Barney", "Klaus", "1998-05-24", "M");
+        entityManager.persistAndFlush(patient);
+
+        Sample sample = new Sample();
+        entityManager.persistAndFlush(sample);
+
+        LabTest test = new LabTest(LabTest.TestType.FUN); // labtest WITHOUT sample
+        entityManager.persistAndFlush(test);
+
+        Physician physician = new Physician("Fred", "Jones", "Hospital", Arrays.asList("Insurance A", "Insurance B"));
+        entityManager.persistAndFlush(physician);
+
+        LabOrder order = new LabOrder(patient, physician, List.of(test));
+        entityManager.persistAndFlush(order);
+        test = entityManager.find(LabTest.class, test.getId());
+
+        HashMap<String, Object> jsonMap = new HashMap<>();
+        jsonMap.put("sample", sample);
+        jsonMap.put("testId", test.getId());
+
+        String json = objectMapper.writeValueAsString(jsonMap);
+
+        mvc.perform(MockMvcRequestBuilders.put(ORDER_URI + LINK_SAMPLE).contentType(MediaType.APPLICATION_JSON).content(json)).andExpect(MockMvcResultMatchers.status().isAccepted());
+
     }
 
 }
